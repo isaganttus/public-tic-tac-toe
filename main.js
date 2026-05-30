@@ -243,6 +243,11 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
             return
         }
 
+        if(row >= printBoard().length || column >= printBoard().length) {
+            console.log("You selected a cell out of range")
+            return
+        }
+
         if(printBoard()[row][column] !== "") {
             console.log("You selected a cell that was already used")
             return
