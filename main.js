@@ -157,7 +157,7 @@ function GameController() {
 
     // helper functions
 
-    function printBoard() {
+    function getBoardSnapshot() {
         return board.getGrid()
     }
 
@@ -168,7 +168,7 @@ function GameController() {
     }
 
     function evaluateGameState() {
-        const boardLookup = printBoard()
+        const boardLookup = getBoardSnapshot()
         const tokenLookup = tokenSelected
         const size = boardLookup.length
 
@@ -238,23 +238,26 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
     }
 
     function playRound(row, column) {
+        const board = getBoardSnapshot()
+        const boardLength = board.length
+
         if(currentGameState !== gameStatesEnum.PLAYING) {
             console.log("Game has not started yet")
             return
         }
 
-        if(row >= printBoard().length || column >= printBoard().length) {
+        if(row >= boardLength || column >= boardLength) {
             console.log("You selected a cell out of range")
             return
         }
 
-        if(printBoard()[row][column] !== "") {
+        if(board[row][column] !== "") {
             console.log("You selected a cell that was already used")
             return
         }
 
         board.addToken(row, column, tokenSelected)
-        console.table(printBoard())
+        console.table(getBoardSnapshot())
         evaluateGameState()
         switchPlayerTurn()
         if(currentGameState === gameStatesEnum.PLAYING) {
@@ -267,7 +270,7 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
     startGame()
 
     return {
-        printBoard,
+        getBoardSnapshot,
         playRound,
     }
 }
@@ -288,7 +291,7 @@ console.log(`
 
     gameController.startGame()
     `)
-console.table(gameController.printBoard())
+console.table(gameController.getBoardSnapshot())
 
 /*
 
