@@ -216,10 +216,10 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
                     amountOfFilledCells++
                 }
             })
+        }
 
-            if(amountOfFilledCells === size * size) {
-                tie()
-            }
+        if(amountOfFilledCells === size * size) {
+            tie()
         }
     }
 
