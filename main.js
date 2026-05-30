@@ -271,6 +271,7 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
     return {
         getBoardSnapshot,
         playRound,
+        startGame,
     }
 }
 
