@@ -91,10 +91,10 @@ function Board() {
 }
 
 function Players() {
-    const tokensEnum = Object.freeze({
-        0: "X",
-        1: "O",
-    })
+    const tokensEnum = Object.freeze([
+        "X",
+        "O"
+    ])
 
     const players = [
         {
@@ -151,8 +151,8 @@ function GameController() {
     })
 
     let currentGameState = gameStatesEnum.WAITING
-    let activePlayer = players[0]
-    let activePlayerIndex = players.indexOf(activePlayer)
+    let activePlayerIndex = 0
+    let activePlayer = players[activePlayerIndex]
     let tokenSelected = playersFactory.getToken(activePlayerIndex)
 
     // helper functions
@@ -162,8 +162,8 @@ function GameController() {
     }
 
     function switchPlayerTurn() {
-        activePlayer = activePlayer === players[0] ? players[1] : players[0]
-        activePlayerIndex = players.indexOf(activePlayer)
+        activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
+        activePlayer = players[activePlayerIndex]
         tokenSelected = playersFactory.getToken(activePlayerIndex)
     }
 
@@ -212,7 +212,7 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
 
         for (let k = 0; k < size; k++) {
             boardLookup[k].forEach(cell => {
-                if(cell === "X" || cell === "O") {
+                if(cell !== "") {
                     amountOfFilledCells++
                 }
             })
@@ -232,14 +232,13 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
 
         board.createEmptyGrid()
         currentGameState = gameStatesEnum["PLAYING"]
-        activePlayer = players[0]
-        activePlayerIndex = players.indexOf(activePlayer)
+        activePlayerIndex = 0
+        activePlayer = players[activePlayerIndex]
         tokenSelected = playersFactory.getToken(activePlayerIndex)
     }
 
     function playRound(row, column) {
-        const board = getBoardSnapshot()
-        const boardLength = board.length
+        const boardLength = getBoardSnapshot().length
 
         if(currentGameState !== gameStatesEnum.PLAYING) {
             console.log("Game has not started yet")
@@ -251,7 +250,7 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
             return
         }
 
-        if(board[row][column] !== "") {
+        if(getBoardSnapshot()[row][column] !== "") {
             console.log("You selected a cell that was already used")
             return
         }
