@@ -50,6 +50,10 @@ inside the function by calling it, which created a new instance of that function
 a reference to the array instead of a copy of the array
 - I didn't know the .every array method and I also didn't  know every array method accepts
 a second argument that is an index argument/and accumulator
+- The score was not increasing because the players const returns a clone.
+I needed to create a method to read scores.
+key learning: every time I return a structureClone I need to create 
+set and get methods.
 
 */
 
@@ -121,11 +125,16 @@ function Players() {
         players[playerIndex].points++
     }
 
+    function getPoints(playerIndex) {
+        return players[playerIndex].points
+    }
+
     return {
         getPlayers,
         setToken,
         getToken,
         increasePoints,
+        getPoints,
     }
 }
 
@@ -169,8 +178,8 @@ function GameController() {
 ${activePlayer.name} won!
                 
 This is the current score:
-${players[0].name}: ${players[0].points}
-${players[1].name}: ${players[1].points}`)
+${players[0].name}: ${playersFactory.getPoints(0)}
+${players[1].name}: ${playersFactory.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
         }
 
@@ -179,8 +188,8 @@ ${players[1].name}: ${players[1].points}`)
 It's a tie!
                 
 This is the current score:
-${players[0].name}: ${players[0].points}
-${players[1].name}: ${players[1].points}`)
+${players[0].name}: ${playersFactory.getPoints(0)}
+${players[1].name}: ${playersFactory.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
         }
 
