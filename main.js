@@ -226,7 +226,10 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
     function startGame() {
         // called once after players choose their name/token
         // called once after players hit restart
-        if(currentGameState === gameStatesEnum["PLAYING"]) return console.log("Game is in playing gameState")
+        if(currentGameState === gameStatesEnum["PLAYING"]) {
+            console.log("Game is in playing gameState")
+            return
+        }
 
         board.createEmptyGrid()
         currentGameState = gameStatesEnum["PLAYING"]
