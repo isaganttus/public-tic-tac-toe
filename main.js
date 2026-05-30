@@ -238,7 +238,15 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
     }
 
     function playRound(row, column) {
-        if(currentGameState !== gameStatesEnum.PLAYING) return console.log("Game has not started yet")
+        if(currentGameState !== gameStatesEnum.PLAYING) {
+            console.log("Game has not started yet")
+            return
+        }
+
+        if(printBoard()[row][column] !== "") {
+            console.log("You selected a cell that was already used")
+            return
+        }
 
         board.addToken(row, column, tokenSelected)
         console.table(printBoard())
