@@ -74,9 +74,7 @@ function Board() {
     createEmptyGrid()
 
     function addToken(row, column, playerToken) {
-        if(grid[row][column] === "") {
-            grid[row][column] = playerToken
-        }
+        grid[row][column] = playerToken
     }
 
     function getGrid() {
@@ -245,7 +243,7 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
             return
         }
 
-        if(row >= boardLength || column >= boardLength) {
+        if(row < 0 || row >= boardLength || column < 0 || column >= boardLength) {
             console.log("You selected a cell out of range")
             return
         }
