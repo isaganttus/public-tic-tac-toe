@@ -166,59 +166,40 @@ function GameController() {
     }
 
     function evaluateGameState() {
-        const boardLookup = getBoardSnapshot()
-        const tokenLookup = tokenSelected
-        const size = boardLookup.length
+        const gridSnapshot = getBoardSnapshot()
+        const gridSize = gridSnapshot.length
+        const lines = []
 
-        function won() {
-            playersFactory.increasePoints(activePlayerIndex)
-            console.log(`
-${activePlayer.name} won!
-                
-This is the current score:
-${players[0].name}: ${playersFactory.getPoints(0)}
-${players[1].name}: ${playersFactory.getPoints(1)}`)
-            currentGameState = gameStatesEnum.ENDED
+        function lineWinner(cells) {
+            const first = cells[0]
+            return first !== "" && cells.every(c => c === first) ? first : null
         }
 
-        function tie() {
-            console.log(`
-It's a tie!
-                
-This is the current score:
-${players[0].name}: ${playersFactory.getPoints(0)}
-${players[1].name}: ${playersFactory.getPoints(1)}`)
-            currentGameState = gameStatesEnum.ENDED
+        // push horizontal and vertical
+        for(let i = 0; i < gridSize; i++) {
+            lines.push(gridSnapshot[i])
+            lines.push(gridSnapshot.map(row => row[i]))
         }
 
-        // horizontal
-        for(let i = 0; i < size; i++) {
-            if(boardLookup[i].every(cell => cell === tokenLookup)) return won()
-        }
-    
-        // vertical
-        for(let j = 0; j < size; j++) {
-            if(boardLookup.every(row => row[j] === tokenLookup)) return won()
-        }
-
-        // diagonal
-        if (boardLookup.every((row, i) => row[i] === tokenLookup)) return won()
-        if (boardLookup.every((row, i) => row[size - 1 - i] === tokenLookup)) return won()
-
-        // tie
-        let amountOfFilledCells = 0
-
-        for (let k = 0; k < size; k++) {
-            boardLookup[k].forEach(cell => {
-                if(cell !== "") {
-                    amountOfFilledCells++
+        // push diagonal
+        lines.push(gridSnapshot.map((row, index) => row[index]))
+        lines.push(gridSnapshot.map((row, index) => row[gridSize - 1 -index]))
+        
+        // check if there is a winner
+        for (line of lines) {
+            const winner = lineWinner(line)
+            if(winner) {
+                if(winner === playersFactory.getToken(0)) {
+                    return { result: players[0] }
+                } else {
+                    return { result: players[1] }
                 }
-            })
+            }
         }
 
-        if(amountOfFilledCells === size * size) {
-            tie()
-        }
+        // check if there is a tie
+        if (gridSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
+        return { result: null }
     }
 
     // game flow functions
@@ -255,11 +236,36 @@ ${players[1].name}: ${playersFactory.getPoints(1)}`)
             console.log("You selected a cell that was already used")
             return
         }
-
+        
         board.addToken(row, column, tokenSelected)
         console.table(getBoardSnapshot())
-        evaluateGameState()
+
+        const outcomeGameState = evaluateGameState().result
+        if(outcomeGameState !== null && outcomeGameState !== "tie") {
+            playersFactory.increasePoints(players.indexOf(outcomeGameState))
+            console.log(`
+                ${outcomeGameState.name} won!
+
+                Current score:
+                ${players[0].name}: ${playersFactory.getPoints(0)}
+                ${players[1].name}: ${playersFactory.getPoints(1)}`)
+            currentGameState = gameStatesEnum.ENDED
+        }
+
+        if(outcomeGameState === "tie") {
+            console.log(`
+                It's a tie!
+
+                Current score:
+                ${players[0].name}: ${playersFactory.getPoints(0)}
+                ${players[1].name}: ${playersFactory.getPoints(1)}`)
+
+            currentGameState = gameStatesEnum.ENDED
+            return
+        }
+
         switchPlayerTurn()
+
         if(currentGameState === gameStatesEnum.PLAYING) {
             console.log(`It is ${activePlayer.name} turn`)
         }
