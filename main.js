@@ -305,3 +305,23 @@ console.table(gameController.getBoardSnapshot())
 On restart screen the player should be able to change their token
 
 */
+
+// Interface
+
+
+const cells = document.querySelectorAll(".cell")
+const cellsArray = Array.from(cells)
+
+console.log(cellsArray)
+
+for (let i = 0; i < 9; i++) {
+    cellsArray[i].addEventListener("click", () => {
+        if (i < 3) {
+            gameController.playRound(0, i)
+        } else if (i >= 3 && i < 6) {
+            gameController.playRound(1, i%3)
+        } else if (i >= 6 && i < 9) {
+            gameController.playRound(2, i%3)
+        }
+    })
+}
