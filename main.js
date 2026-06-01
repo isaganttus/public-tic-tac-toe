@@ -75,6 +75,8 @@ function Board() {
 
     function addToken(row, column, playerToken) {
         grid[row][column] = playerToken
+        renderToken(row, column, playerToken)
+
     }
 
     function getGrid() {
@@ -307,13 +309,21 @@ On restart screen the player should be able to change their token
 */
 
 // Interface
-
+// TODO: Put this in factories/modules
 
 const cells = document.querySelectorAll(".cell")
 const cellsArray = Array.from(cells)
+const firstRow = cellsArray.filter((item, index) => index < 3)
+const secondRow = cellsArray.filter((item, index) => index >= 3 && index < 6)
+const thirdRow = cellsArray.filter((item, index) => index >= 6 && index < 9)
 
-console.log(cellsArray)
+for (let i = 0; i < 3; i++) {
+    firstRow[i].addEventListener("click", () => gameController.playRound(0, i))
+    secondRow[i].addEventListener("click", () => gameController.playRound(1, i))
+    thirdRow[i].addEventListener("click", () => gameController.playRound(2, i))
+}
 
+/*
 for (let i = 0; i < 9; i++) {
     cellsArray[i].addEventListener("click", () => {
         if (i < 3) {
@@ -324,4 +334,20 @@ for (let i = 0; i < 9; i++) {
             gameController.playRound(2, i%3)
         }
     })
+}
+*/
+
+function renderToken(row, column, playerToken) {
+    const span = document.createElement("span")
+    span.classList.add("material-symbols-sharp")
+
+    if(playerToken === "X") {
+        span.textContent = "close"
+    } else {
+        span.textContent = "circle"
+    }
+
+    const cellIndexDOM = (row * 3) + column
+
+    cells[cellIndexDOM].appendChild(span)
 }
