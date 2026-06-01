@@ -1,3 +1,12 @@
+.material-symbols-sharp {
+    font-size: 104px;
+  font-variation-settings: 
+    'FILL' 0,
+    'wght' 700,
+    'GRAD' 0,
+    'opsz' 96;    /* Optical size (e.g., 16, 24, 32, 48, 96) */
+}
+
 .board {
     display: flex;
     width: 500px;
@@ -17,4 +26,6 @@
     background-color: bisque;
     flex: 1;
     border: black solid 1px;
+    text-align: center;
+    align-content: center;
 }
