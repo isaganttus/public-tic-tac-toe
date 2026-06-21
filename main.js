@@ -200,16 +200,16 @@ function Players() {
             const winner = lineWinner(line)
             if(winner) {
                 if(winner === playersFactory.getToken(0)) {
-                    return { result: players[0] }
+                    return { winnerIndex: 0 }
                 } else {
-                    return { result: players[1] }
+                    return { winnerIndex: 1 }
                 }
             }
         }
 
         // check if there is a tie
         if (gridSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
-        return { result: null }
+        return { winnerIndex: null }
     }
 
     // game flow functions
@@ -246,10 +246,10 @@ function Players() {
         board.addToken(row, column, tokenSelected)
         console.table(board)
 
-        const outcomeGameState = evaluateGameState().result
+        const outcomeGameState = evaluateGameState().winnerIndex
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
-            playersFactory.increasePoints(players.indexOf(outcomeGameState))
-            renderGameState(activePlayerIndex, "won", outcomeGameState.name)
+            playersFactory.increasePoints(outcomeGameState)
+            renderGameState(activePlayerIndex, "won", playersFactory.getName(outcomeGameState))
             renderScore(`${playersFactory.getName(0)}: ${playersFactory.getPoints(0)}, ${playersFactory.getName(1)}: ${playersFactory.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
