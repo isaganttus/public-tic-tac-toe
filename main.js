@@ -57,7 +57,7 @@ set and get methods.
 
 */
 
-(function Board() {
+const board = (function Board() {
     let grid = []
     let columns, rows
     columns = rows = 3
