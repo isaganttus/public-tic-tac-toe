@@ -73,12 +73,9 @@ const board = (function Board() {
         }
     }
 
-    createEmptyGrid()
-
     function addToken(row, column, playerToken) {
         grid[row][column] = playerToken
         renderToken(row, column, playerToken)
-
     }
 
     function getGrid() {
@@ -111,10 +108,6 @@ function Players() {
         }
     ]
 
-    function getPlayers() {
-        return structuredClone(players)
-    }
-
     function setToken(playerIndex, tokenIndex) {
         players[playerIndex].token = tokensEnum[tokenIndex]
     }
@@ -136,7 +129,6 @@ function Players() {
     }
 
     return {
-        getPlayers,
         setToken,
         getToken,
         increasePoints,
@@ -148,8 +140,7 @@ function Players() {
 (function GameController() {
     // constants, variables and enums
     const board = Board()
-    const playersFactory = Players()
-    const players = playersFactory.getPlayers()
+    const players = Players()
 
     const gameStatesEnum = Object.freeze({
         WAITING: "waiting",
@@ -159,19 +150,16 @@ function Players() {
 
     let currentGameState = gameStatesEnum.WAITING
     let activePlayerIndex = 0
-    let activePlayer = players[activePlayerIndex]
-    let tokenSelected = playersFactory.getToken(activePlayerIndex)
+    let tokenSelected = players.getToken(activePlayerIndex)
 
     // helper functions
-
     function getBoardSnapshot() {
         return board.getGrid()
-    }
+    } // maybe not needed
 
     function switchPlayerTurn() {
         activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
-        activePlayer = players[activePlayerIndex]
-        tokenSelected = playersFactory.getToken(activePlayerIndex)
+        tokenSelected = players.getToken(activePlayerIndex)
         renderGameState(activePlayerIndex, "turn", "")
     }
 
@@ -199,7 +187,7 @@ function Players() {
         for (const line of lines) {
             const winner = lineWinner(line)
             if(winner) {
-                if(winner === playersFactory.getToken(0)) {
+                if(winner === players.getToken(0)) {
                     return { winnerIndex: 0 }
                 } else {
                     return { winnerIndex: 1 }
@@ -213,7 +201,6 @@ function Players() {
     }
 
     // game flow functions
-
     function startGame() {
         // called once after players choose their name/token
         // called once after players hit restart
@@ -225,8 +212,7 @@ function Players() {
         board.createEmptyGrid()
         currentGameState = gameStatesEnum["PLAYING"]
         activePlayerIndex = 0
-        activePlayer = players[activePlayerIndex]
-        tokenSelected = playersFactory.getToken(activePlayerIndex)
+        tokenSelected = players.getToken(activePlayerIndex)
     }
 
     function playRound(row, column) {
@@ -249,15 +235,15 @@ function Players() {
         const outcomeGameState = evaluateGameState().winnerIndex
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
             playersFactory.increasePoints(outcomeGameState)
-            renderGameState(activePlayerIndex, "won", playersFactory.getName(outcomeGameState))
-            renderScore(`${playersFactory.getName(0)}: ${playersFactory.getPoints(0)}, ${playersFactory.getName(1)}: ${playersFactory.getPoints(1)}`)
+            renderGameState(activePlayerIndex, "won", players.getName(outcomeGameState))
+            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
         }
 
         if(outcomeGameState === "tie") {
             renderGameState(activePlayerIndex, "tie", "")
-            renderScore(`${playersFactory.getName(0)}: ${playersFactory.getPoints(0)}, ${playersFactory.getName(1)}: ${playersFactory.getPoints(1)}`)
+            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
         }
