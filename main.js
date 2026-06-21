@@ -188,7 +188,7 @@ function GameController() {
         lines.push(gridSnapshot.map((row, index) => row[gridSize - 1 -index]))
         
         // check if there is a winner
-        for (line of lines) {
+        for (const line of lines) {
             const winner = lineWinner(line)
             if(winner) {
                 if(winner === playersFactory.getToken(0)) {
