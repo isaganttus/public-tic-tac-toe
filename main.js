@@ -64,7 +64,7 @@ set and get methods.
 
     function createEmptyGrid() {
         grid = []
-        
+
         for(let i = 0; i < rows; i++) {
             grid[i] = []
             for (let j = 0; j < columns; j++) {
@@ -230,20 +230,21 @@ function Players() {
     }
 
     function playRound(row, column) {
-        const boardLength = getBoardSnapshot().length
+        const board = getBoardSnapshot()
+        const boardLength = board.length
 
         if(currentGameState !== gameStatesEnum.PLAYING) {
             // render instructions text for replay
             return
         }
 
-        if(getBoardSnapshot()[row][column] !== "") {
+        if(board[row][column] !== "") {
             renderInstructionsText("You selected a cell that was already used.")
             return
         }
         
         board.addToken(row, column, tokenSelected)
-        console.table(getBoardSnapshot())
+        console.table(board)
 
         const outcomeGameState = evaluateGameState().result
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
