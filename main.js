@@ -89,6 +89,130 @@ const board = (function Board() {
     }
 })()
 
+
+const game = (function GameController() {
+    // constants, variables and enums
+    const players = Players()
+    
+    const gameStatesEnum = Object.freeze({
+        WAITING: "waiting",
+        PLAYING: "playing",
+        ENDED: "ended",
+    })
+    
+    let currentGameState = gameStatesEnum.WAITING
+    let activePlayerIndex = 0
+    let tokenSelected = players.getToken(activePlayerIndex)
+    
+    // helper functions
+    const getBoard = () => board.getGrid()
+    
+    function switchPlayerTurn() {
+        activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
+        tokenSelected = players.getToken(activePlayerIndex)
+        renderGameState(activePlayerIndex, "turn", "")
+    }
+    
+    function evaluateGameState() {
+        const boardSnapshot = getBoard()
+        const boardSnapshotLength = boardSnapshot.length
+        const lines = []
+        
+        function lineWinner(cells) {
+            const first = cells[0]
+            return first !== "" && cells.every(c => c === first) ? first : null
+        }
+        
+        // push horizontal and vertical
+        for(let i = 0; i < boardSnapshotLength; i++) {
+            lines.push(boardSnapshot[i])
+            lines.push(boardSnapshot.map(row => row[i]))
+        }
+        
+        // push diagonal
+        lines.push(boardSnapshot.map((row, index) => row[index]))
+        lines.push(boardSnapshot.map((row, index) => row[boardSnapshotLength - 1 -index]))
+        
+        // check if there is a winner
+        for (const line of lines) {
+            const winner = lineWinner(line)
+            if(winner) {
+                if(winner === players.getToken(0)) {
+                    return { winnerIndex: 0 }
+                } else {
+                    return { winnerIndex: 1 }
+                }
+            }
+        }
+        
+        // check if there is a tie
+        if (boardSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
+        return { winnerIndex: null }
+    }
+    
+    // game flow functions
+    function startGame() {
+        // called once after players choose their name/token
+        // called once after players hit restart
+        if(currentGameState === gameStatesEnum["PLAYING"]) {
+            console.log("Game is in playing gameState")
+            return
+        }
+        
+        board.createEmptyGrid()
+        currentGameState = gameStatesEnum["PLAYING"]
+        activePlayerIndex = 0
+        tokenSelected = players.getToken(activePlayerIndex)
+    }
+    
+    function playRound(row, column) {
+        const boardSnapshot = getBoard()
+        const boardSnapshotLength = boardSnapshot.length
+        
+        if(currentGameState !== gameStatesEnum.PLAYING) {
+            // render instructions text for replay
+            return
+        }
+        
+        if(boardSnapshot[row][column] !== "") {
+            renderInstructionsText("You selected a cell that was already used.")
+            return
+        }
+        
+        board.addToken(row, column, tokenSelected)
+        console.table(board)
+        
+        const outcomeGameState = evaluateGameState().winnerIndex
+        if(outcomeGameState !== null && outcomeGameState !== "tie") {
+            players.increasePoints(outcomeGameState)
+            renderGameState(activePlayerIndex, "won", players.getName(outcomeGameState))
+            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
+            currentGameState = gameStatesEnum.ENDED
+            return
+        }
+        
+        if(outcomeGameState === "tie") {
+            renderGameState(activePlayerIndex, "tie", "")
+            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
+            currentGameState = gameStatesEnum.ENDED
+            return
+        }
+        
+        if(currentGameState === gameStatesEnum.PLAYING) {
+            switchPlayerTurn()
+        }
+    }
+    
+    // init
+    
+    startGame()
+    
+    return {
+        playRound,
+        startGame,
+    }
+})()
+
 function Players() {
     const tokensEnum = Object.freeze([
         "X",
@@ -136,129 +260,6 @@ function Players() {
         getName,
     }
 }
-
-(function GameController() {
-    // constants, variables and enums
-    const players = Players()
-
-    const gameStatesEnum = Object.freeze({
-        WAITING: "waiting",
-        PLAYING: "playing",
-        ENDED: "ended",
-    })
-
-    let currentGameState = gameStatesEnum.WAITING
-    let activePlayerIndex = 0
-    let tokenSelected = players.getToken(activePlayerIndex)
-
-    // helper functions
-    const getBoard = () => board.getGrid()
-
-    function switchPlayerTurn() {
-        activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
-        tokenSelected = players.getToken(activePlayerIndex)
-        renderGameState(activePlayerIndex, "turn", "")
-    }
-
-    function evaluateGameState() {
-        const boardSnapshot = getBoard()
-        const boardSnapshotLength = boardSnapshot.length
-        const lines = []
-
-        function lineWinner(cells) {
-            const first = cells[0]
-            return first !== "" && cells.every(c => c === first) ? first : null
-        }
-
-        // push horizontal and vertical
-        for(let i = 0; i < boardSnapshotLength; i++) {
-            lines.push(boardSnapshot[i])
-            lines.push(boardSnapshot.map(row => row[i]))
-        }
-
-        // push diagonal
-        lines.push(boardSnapshot.map((row, index) => row[index]))
-        lines.push(boardSnapshot.map((row, index) => row[boardSnapshotLength - 1 -index]))
-        
-        // check if there is a winner
-        for (const line of lines) {
-            const winner = lineWinner(line)
-            if(winner) {
-                if(winner === players.getToken(0)) {
-                    return { winnerIndex: 0 }
-                } else {
-                    return { winnerIndex: 1 }
-                }
-            }
-        }
-
-        // check if there is a tie
-        if (boardSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
-        return { winnerIndex: null }
-    }
-
-    // game flow functions
-    function startGame() {
-        // called once after players choose their name/token
-        // called once after players hit restart
-        if(currentGameState === gameStatesEnum["PLAYING"]) {
-            console.log("Game is in playing gameState")
-            return
-        }
-
-        board.createEmptyGrid()
-        currentGameState = gameStatesEnum["PLAYING"]
-        activePlayerIndex = 0
-        tokenSelected = players.getToken(activePlayerIndex)
-    }
-
-    function playRound(row, column) {
-        const boardSnapshot = getBoard()
-        const boardSnapshotLength = boardSnapshot.length
-
-        if(currentGameState !== gameStatesEnum.PLAYING) {
-            // render instructions text for replay
-            return
-        }
-
-        if(boardSnapshot[row][column] !== "") {
-            renderInstructionsText("You selected a cell that was already used.")
-            return
-        }
-        
-        board.addToken(row, column, tokenSelected)
-        console.table(board)
-
-        const outcomeGameState = evaluateGameState().winnerIndex
-        if(outcomeGameState !== null && outcomeGameState !== "tie") {
-            players.increasePoints(outcomeGameState)
-            renderGameState(activePlayerIndex, "won", players.getName(outcomeGameState))
-            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
-            currentGameState = gameStatesEnum.ENDED
-            return
-        }
-
-        if(outcomeGameState === "tie") {
-            renderGameState(activePlayerIndex, "tie", "")
-            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
-            currentGameState = gameStatesEnum.ENDED
-            return
-        }
-
-        if(currentGameState === gameStatesEnum.PLAYING) {
-            switchPlayerTurn()
-        }
-    }
-
-    // init
-
-    startGame()
-
-    return {
-        playRound,
-        startGame,
-    }
-})()
 
 /*
 
