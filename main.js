@@ -323,20 +323,6 @@ for (let i = 0; i < 3; i++) {
     thirdRow[i].addEventListener("click", () => gameController.playRound(2, i))
 }
 
-/*
-for (let i = 0; i < 9; i++) {
-    cellsArray[i].addEventListener("click", () => {
-        if (i < 3) {
-            gameController.playRound(0, i)
-        } else if (i >= 3 && i < 6) {
-            gameController.playRound(1, i%3)
-        } else if (i >= 6 && i < 9) {
-            gameController.playRound(2, i%3)
-        }
-    })
-}
-*/
-
 function renderToken(row, column, playerToken) {
     const span = document.createElement("span")
     span.classList.add("material-symbols-sharp")
