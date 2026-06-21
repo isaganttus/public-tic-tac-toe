@@ -48,7 +48,7 @@ ERRORS I MADE/THINGS I LEARNED:
 inside the function by calling it, which created a new instance of that function each time
 - I did a fake encapsulation of players inside the Players() factory, where I was returning
 a reference to the array instead of a copy of the array
-- I didn't know the .every array method and I also didn't  know every array method accepts
+- I didn't know the .every array method and I also didn't know every array method accepts
 a second argument that is an index argument/and accumulator
 - The score was not increasing because the players const returns a clone.
 I needed to create a method to read scores.
