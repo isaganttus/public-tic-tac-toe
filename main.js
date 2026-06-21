@@ -185,7 +185,7 @@ const game = (function GameController() {
         const outcomeGameState = evaluateGameState().winnerIndex
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
             players.increasePoints(outcomeGameState)
-            renderGameState(activePlayerIndex, "won", players.getName(outcomeGameState))
+            renderGameState(activePlayerIndex, "win", players.getName(outcomeGameState))
             renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
