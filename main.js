@@ -180,7 +180,7 @@ const game = (function GameController() {
         }
         
         board.addToken(row, column, tokenSelected)
-        console.table(board)
+        console.table(boardSnapshot)
         
         const outcomeGameState = evaluateGameState().winnerIndex
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
