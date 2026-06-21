@@ -277,9 +277,9 @@ const secondRow = cellsArray.filter((item, index) => index >= 3 && index < 6)
 const thirdRow = cellsArray.filter((item, index) => index >= 6 && index < 9)
 
 for (let i = 0; i < 3; i++) {
-    firstRow[i].addEventListener("click", () => gameController.playRound(0, i))
-    secondRow[i].addEventListener("click", () => gameController.playRound(1, i))
-    thirdRow[i].addEventListener("click", () => gameController.playRound(2, i))
+    firstRow[i].addEventListener("click", () => game.playRound(0, i))
+    secondRow[i].addEventListener("click", () => game.playRound(1, i))
+    thirdRow[i].addEventListener("click", () => game.playRound(2, i))
 }
 
 function renderToken(row, column, playerToken) {
