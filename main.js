@@ -139,7 +139,6 @@ function Players() {
 
 (function GameController() {
     // constants, variables and enums
-    const board = Board()
     const players = Players()
 
     const gameStatesEnum = Object.freeze({
@@ -153,9 +152,7 @@ function Players() {
     let tokenSelected = players.getToken(activePlayerIndex)
 
     // helper functions
-    function getBoardSnapshot() {
-        return board.getGrid()
-    } // maybe not needed
+    const getBoard = () => board.getGrid()
 
     function switchPlayerTurn() {
         activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
@@ -164,8 +161,8 @@ function Players() {
     }
 
     function evaluateGameState() {
-        const gridSnapshot = getBoardSnapshot()
-        const gridSize = gridSnapshot.length
+        const boardSnapshot = getBoard()
+        const boardSnapshotLength = boardSnapshot.length
         const lines = []
 
         function lineWinner(cells) {
@@ -174,14 +171,14 @@ function Players() {
         }
 
         // push horizontal and vertical
-        for(let i = 0; i < gridSize; i++) {
-            lines.push(gridSnapshot[i])
-            lines.push(gridSnapshot.map(row => row[i]))
+        for(let i = 0; i < boardSnapshotLength; i++) {
+            lines.push(boardSnapshot[i])
+            lines.push(boardSnapshot.map(row => row[i]))
         }
 
         // push diagonal
-        lines.push(gridSnapshot.map((row, index) => row[index]))
-        lines.push(gridSnapshot.map((row, index) => row[gridSize - 1 -index]))
+        lines.push(boardSnapshot.map((row, index) => row[index]))
+        lines.push(boardSnapshot.map((row, index) => row[boardSnapshotLength - 1 -index]))
         
         // check if there is a winner
         for (const line of lines) {
@@ -196,7 +193,7 @@ function Players() {
         }
 
         // check if there is a tie
-        if (gridSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
+        if (boardSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
         return { winnerIndex: null }
     }
 
@@ -216,15 +213,15 @@ function Players() {
     }
 
     function playRound(row, column) {
-        const board = getBoardSnapshot()
-        const boardLength = board.length
+        const boardSnapshot = getBoard()
+        const boardSnapshotLength = boardSnapshot.length
 
         if(currentGameState !== gameStatesEnum.PLAYING) {
             // render instructions text for replay
             return
         }
 
-        if(board[row][column] !== "") {
+        if(boardSnapshot[row][column] !== "") {
             renderInstructionsText("You selected a cell that was already used.")
             return
         }
@@ -234,7 +231,7 @@ function Players() {
 
         const outcomeGameState = evaluateGameState().winnerIndex
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
-            playersFactory.increasePoints(outcomeGameState)
+            players.increasePoints(outcomeGameState)
             renderGameState(activePlayerIndex, "won", players.getName(outcomeGameState))
             renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
@@ -258,7 +255,6 @@ function Players() {
     startGame()
 
     return {
-        getBoardSnapshot,
         playRound,
         startGame,
     }
