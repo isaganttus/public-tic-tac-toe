@@ -57,7 +57,7 @@ set and get methods.
 
 */
 
-function Board() {
+(function Board() {
     let grid = []
     let columns, rows
     columns = rows = 3
@@ -88,7 +88,7 @@ function Board() {
         addToken,
         getGrid,
     }
-}
+})()
 
 function Players() {
     const tokensEnum = Object.freeze([
@@ -129,16 +129,21 @@ function Players() {
         return players[playerIndex].points
     }
 
+    function getName(playerIndex) {
+        return players[playerIndex].name
+    }
+
     return {
         getPlayers,
         setToken,
         getToken,
         increasePoints,
         getPoints,
+        getName,
     }
 }
 
-function GameController() {
+(function GameController() {
     // constants, variables and enums
     const board = Board()
     const playersFactory = Players()
@@ -165,6 +170,7 @@ function GameController() {
         activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
         activePlayer = players[activePlayerIndex]
         tokenSelected = playersFactory.getToken(activePlayerIndex)
+        renderGameState(activePlayerIndex, "turn", "")
     }
 
     function evaluateGameState() {
@@ -225,17 +231,12 @@ function GameController() {
         const boardLength = getBoardSnapshot().length
 
         if(currentGameState !== gameStatesEnum.PLAYING) {
-            console.log("Game has not started yet")
-            return
-        }
-
-        if(row < 0 || row >= boardLength || column < 0 || column >= boardLength) {
-            console.log("You selected a cell out of range")
+            // render instructions text for replay
             return
         }
 
         if(getBoardSnapshot()[row][column] !== "") {
-            console.log("You selected a cell that was already used")
+            renderInstructionsText("You selected a cell that was already used.")
             return
         }
         
@@ -245,31 +246,21 @@ function GameController() {
         const outcomeGameState = evaluateGameState().result
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
             playersFactory.increasePoints(players.indexOf(outcomeGameState))
-            console.log(`
-                ${outcomeGameState.name} won!
-
-                Current score:
-                ${players[0].name}: ${playersFactory.getPoints(0)}
-                ${players[1].name}: ${playersFactory.getPoints(1)}`)
-            currentGameState = gameStatesEnum.ENDED
-        }
-
-        if(outcomeGameState === "tie") {
-            console.log(`
-                It's a tie!
-
-                Current score:
-                ${players[0].name}: ${playersFactory.getPoints(0)}
-                ${players[1].name}: ${playersFactory.getPoints(1)}`)
-
+            renderGameState(activePlayerIndex, "won", outcomeGameState.name)
+            renderScore(`${playersFactory.getName(0)}: ${playersFactory.getPoints(0)}, ${playersFactory.getName(1)}: ${playersFactory.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
         }
 
-        switchPlayerTurn()
+        if(outcomeGameState === "tie") {
+            renderGameState(activePlayerIndex, "tie", "")
+            renderScore(`${playersFactory.getName(0)}: ${playersFactory.getPoints(0)}, ${playersFactory.getName(1)}: ${playersFactory.getPoints(1)}`)
+            currentGameState = gameStatesEnum.ENDED
+            return
+        }
 
         if(currentGameState === gameStatesEnum.PLAYING) {
-            console.log(`It is ${activePlayer.name} turn`)
+            switchPlayerTurn()
         }
     }
 
@@ -282,25 +273,7 @@ function GameController() {
         playRound,
         startGame,
     }
-}
-
-const gameController = GameController()
-
-console.log(`
-    Welcome to this humble Tic-Tac-Toe game!
-    You are both player 1 and player 2 because I still haven't learned
-    how to create a machine as good as you lol
-
-    To play a round type this in your console:
-
-    gameController.playRound(rowNumber, columnNumber)
-
-    Once the game ends you will not be able to play rounds.
-    You need to actually type this in your console to start another game:
-
-    gameController.startGame()
-    `)
-console.table(gameController.getBoardSnapshot())
+})()
 
 /*
 
@@ -336,4 +309,38 @@ function renderToken(row, column, playerToken) {
     const cellIndexDOM = (row * 3) + column
 
     cells[cellIndexDOM].appendChild(span)
+}
+
+// render text
+
+function renderInstructionsText(string) {
+    const instructions = document.querySelector(".instructions")
+    instructions.textContent = string
+}
+
+function renderGameState(activePlayerIndex, gameState, name) {
+    const state = document.querySelector(".state")
+
+    switch (gameState) {
+        case "turn":
+            let playerString = ""
+            if(activePlayerIndex === 0) {
+                playerString = "player 1 (X)"
+            } else {
+                playerString = "player 2 (O)"
+            }
+            state.textContent = `It is ${playerString} turn`
+            break
+        case "win":
+            state.textContent = `${name} won!`
+            break
+        case "tie":
+            state.textContent = `It's a tie!`
+            break
+    }
+}
+
+function renderScore(string) {
+    const score = document.querySelector(".score")
+    score.textContent = string
 }
