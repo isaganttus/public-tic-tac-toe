@@ -54,6 +54,10 @@ a second argument that is an index argument/and accumulator
 I needed to create a method to read scores.
 key learning: every time I return a structureClone I need to create 
 set and get methods.
+- Use IIFEs or factories correctly - factory when you need more than one version of that object,
+IIFEs when it's going to have only one instance.
+- Create handles for IIFEs
+- Differentiate read values from get values board/boardSnapshot
 
 */
 
