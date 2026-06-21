@@ -146,7 +146,7 @@ const game = (function GameController() {
         }
         
         // check if there is a tie
-        if (boardSnapshot.flat().every(cell => cell !== "")) return { result: "tie" }
+        if (boardSnapshot.flat().every(cell => cell !== "")) return { winnerIndex: "tie" }
         return { winnerIndex: null }
     }
     
