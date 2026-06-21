@@ -63,6 +63,8 @@ set and get methods.
     columns = rows = 3
 
     function createEmptyGrid() {
+        grid = []
+        
         for(let i = 0; i < rows; i++) {
             grid[i] = []
             for (let j = 0; j < columns; j++) {
