@@ -79,7 +79,7 @@ const board = (function Board() {
 
     function addToken(row, column, playerToken) {
         grid[row][column] = playerToken
-        renderToken(row, column, playerToken)
+        gameInterface.renderToken(row, column, playerToken)
     }
 
     function getGrid() {
@@ -114,7 +114,7 @@ const game = (function GameController() {
     function switchPlayerTurn() {
         activePlayerIndex = activePlayerIndex === 0 ? 1 : 0
         tokenSelected = players.getToken(activePlayerIndex)
-        renderGameState(activePlayerIndex, "turn", "")
+        gameInterface.renderGameState(activePlayerIndex, "turn", "")
     }
     
     function evaluateGameState() {
@@ -179,7 +179,7 @@ const game = (function GameController() {
         }
         
         if(boardSnapshot[row][column] !== "") {
-            renderInstructionsText("You selected a cell that was already used.")
+            gameInterface.renderInstructionsText("You selected a cell that was already used.")
             return
         }
         
@@ -189,15 +189,15 @@ const game = (function GameController() {
         const outcomeGameState = evaluateGameState().winnerIndex
         if(outcomeGameState !== null && outcomeGameState !== "tie") {
             players.increasePoints(outcomeGameState)
-            renderGameState(activePlayerIndex, "win", players.getName(outcomeGameState))
-            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
+            gameInterface.renderGameState(activePlayerIndex, "win", players.getName(outcomeGameState))
+            gameInterface.renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
         }
         
         if(outcomeGameState === "tie") {
-            renderGameState(activePlayerIndex, "tie", "")
-            renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
+            gameInterface.renderGameState(activePlayerIndex, "tie", "")
+            gameInterface.renderScore(`${players.getName(0)}: ${players.getPoints(0)}, ${players.getName(1)}: ${players.getPoints(1)}`)
             currentGameState = gameStatesEnum.ENDED
             return
         }
@@ -272,65 +272,75 @@ On restart screen the player should be able to change their token
 */
 
 // Interface
-// TODO: Put this in factories/modules
 
-const cells = document.querySelectorAll(".cell")
-const cellsArray = Array.from(cells)
-const firstRow = cellsArray.filter((item, index) => index < 3)
-const secondRow = cellsArray.filter((item, index) => index >= 3 && index < 6)
-const thirdRow = cellsArray.filter((item, index) => index >= 6 && index < 9)
+const gameInterface = (function GameInterface() {
+    const cells = document.querySelectorAll(".cell")
+    const cellsArray = Array.from(cells)
+    const firstRow = cellsArray.filter((item, index) => index < 3)
+    const secondRow = cellsArray.filter((item, index) => index >= 3 && index < 6)
+    const thirdRow = cellsArray.filter((item, index) => index >= 6 && index < 9)
 
-for (let i = 0; i < 3; i++) {
-    firstRow[i].addEventListener("click", () => game.playRound(0, i))
-    secondRow[i].addEventListener("click", () => game.playRound(1, i))
-    thirdRow[i].addEventListener("click", () => game.playRound(2, i))
-}
-
-function renderToken(row, column, playerToken) {
-    const span = document.createElement("span")
-    span.classList.add("material-symbols-sharp")
-
-    if(playerToken === "X") {
-        span.textContent = "close"
-    } else {
-        span.textContent = "circle"
+    function addEvents() {
+        for (let i = 0; i < 3; i++) {
+            firstRow[i].addEventListener("click", () => game.playRound(0, i))
+            secondRow[i].addEventListener("click", () => game.playRound(1, i))
+            thirdRow[i].addEventListener("click", () => game.playRound(2, i))
+        }
     }
 
-    const cellIndexDOM = (row * 3) + column
+    addEvents()
 
-    cells[cellIndexDOM].appendChild(span)
-}
-
-// render text
-
-function renderInstructionsText(string) {
-    const instructions = document.querySelector(".instructions")
-    instructions.textContent = string
-}
-
-function renderGameState(activePlayerIndex, gameState, name) {
-    const state = document.querySelector(".state")
-
-    switch (gameState) {
-        case "turn":
-            let playerString = ""
-            if(activePlayerIndex === 0) {
-                playerString = "player 1 (X)"
-            } else {
-                playerString = "player 2 (O)"
-            }
-            state.textContent = `It is ${playerString} turn`
-            break
-        case "win":
-            state.textContent = `${name} won!`
-            break
-        case "tie":
-            state.textContent = `It's a tie!`
-            break
+    function renderToken(row, column, playerToken) {
+        const span = document.createElement("span")
+        span.classList.add("material-symbols-sharp")
+    
+        if(playerToken === "X") {
+            span.textContent = "close"
+        } else {
+            span.textContent = "circle"
+        }
+    
+        const cellIndexDOM = (row * 3) + column
+    
+        cells[cellIndexDOM].appendChild(span)
     }
-}
 
-function renderScore(string) {
-    const score = document.querySelector(".score")
-    score.textContent = string
-}
+    function renderInstructionsText(string) {
+        const instructions = document.querySelector(".instructions")
+        instructions.textContent = string
+    }
+    
+    function renderGameState(activePlayerIndex, gameState, name) {
+        const state = document.querySelector(".state")
+    
+        switch (gameState) {
+            case "turn":
+                let playerString = ""
+                if(activePlayerIndex === 0) {
+                    playerString = "player 1 (X)"
+                } else {
+                    playerString = "player 2 (O)"
+                }
+                state.textContent = `It is ${playerString} turn`
+                break
+            case "win":
+                state.textContent = `${name} won!`
+                break
+            case "tie":
+                state.textContent = `It's a tie!`
+                break
+        }
+    }
+    
+    function renderScore(string) {
+        const score = document.querySelector(".score")
+        score.textContent = string
+    }
+    
+    return {
+        renderToken,
+        renderInstructionsText,
+        renderGameState,
+        renderScore,
+    }
+})()
