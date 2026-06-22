@@ -158,11 +158,6 @@ const game = (function GameController() {
     function startGame() {
         // called once after players choose their name/token
         // called once after players hit restart
-        if(currentGameState === gameStatesEnum["PLAYING"]) {
-            console.log("Game is in playing gameState")
-            return
-        }
-        
         board.createEmptyGrid()
         currentGameState = gameStatesEnum["PLAYING"]
         activePlayerIndex = 0
@@ -208,8 +203,6 @@ const game = (function GameController() {
     }
     
     // init
-    
-    startGame()
     
     return {
         playRound,
@@ -274,21 +267,27 @@ On restart screen the player should be able to change their token
 // Interface
 
 const gameInterface = (function GameInterface() {
-    const cells = document.querySelectorAll(".cell")
-    const cellsArray = Array.from(cells)
-    const firstRow = cellsArray.filter((item, index) => index < 3)
-    const secondRow = cellsArray.filter((item, index) => index >= 3 && index < 6)
-    const thirdRow = cellsArray.filter((item, index) => index >= 6 && index < 9)
+    function renderGrid() {
+        const gridData = board.getGrid()
+        const rowsAmount = gridData.length
+        const columnsAmount = gridData[0].length
+        const boardElement = document.querySelector(".board")
+        boardElement.textContent = ""
 
-    function addEvents() {
-        for (let i = 0; i < 3; i++) {
-            firstRow[i].addEventListener("click", () => game.playRound(0, i))
-            secondRow[i].addEventListener("click", () => game.playRound(1, i))
-            thirdRow[i].addEventListener("click", () => game.playRound(2, i))
+        for (let i = 0; i < rowsAmount; i++) {
+            const row = document.createElement("div")
+            row.classList.add("row")
+
+            for (let j = 0; j < columnsAmount; j++) {
+                const cell  = document.createElement("div")
+                cell.classList.add("cell")
+                cell.addEventListener("click", () => game.playRound(i, j))
+                row.appendChild(cell)
+            }
+
+            boardElement.appendChild(row)
         }
     }
-
-    addEvents()
 
     function renderToken(row, column, playerToken) {
         const span = document.createElement("span")
@@ -299,12 +298,13 @@ const gameInterface = (function GameInterface() {
         } else {
             span.textContent = "circle"
         }
-    
+        
+        const cells = document.querySelectorAll(".cell")
         const cellIndexDOM = (row * 3) + column
-    
         cells[cellIndexDOM].appendChild(span)
     }
 
+    // status interface
     function renderInstructionsText(string) {
         const instructions = document.querySelector(".instructions")
         instructions.textContent = string
@@ -336,7 +336,16 @@ const gameInterface = (function GameInterface() {
         const score = document.querySelector(".score")
         score.textContent = string
     }
-    
+
+    // start game interface
+    (function addPlayEvent() {
+        const playButton = document.querySelector("button")
+        playButton.addEventListener("click", () => {
+            game.startGame()
+            renderGrid()
+        })
+    })()
+
     return {
         renderToken,
         renderInstructionsText,

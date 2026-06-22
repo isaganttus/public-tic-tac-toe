@@ -7,6 +7,19 @@
     'opsz' 96;    /* Optical size (e.g., 16, 24, 32, 48, 96) */
 }
 
+* {
+    margin: 0px;
+}
+
+body {
+    margin: 20px;
+    box-sizing: border-box;
+}
+
+p {
+    margin: 5px;
+}
+
 .board {
     display: flex;
     width: 500px;
@@ -28,4 +41,8 @@
     border: black solid 1px;
     text-align: center;
     align-content: center;
+}
+
+button {
+    margin: 10px 0px;
 }
